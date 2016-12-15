@@ -55,3 +55,14 @@ beta = estimate_beta(X=X, y=y)
 y = estimate_y(X=X, beta=beta)
 rmse = compute_rmse(y=y, y_est=y_est)
 
+# Question 7 : Estimateur Lasso
+library("genlasso")
+n = 50
+p = 100
+X = matrix(rnorm(n*p), ncol=p)
+y = X[,1] + rnorm(n)
+D = diag(1,p)
+out = genlasso(y, X=X, D=D)
+summary(out)
+plot(out)
+betalasso = coef(out, lambda=sqrt(n*log(p)))
