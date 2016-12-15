@@ -56,6 +56,8 @@ y = estimate_y(X=X, beta=beta)
 rmse = compute_rmse(y=y, y_est=y_est)
 
 # Question 7 : Estimateur Lasso
+install.packages("genlasso")
+
 library("genlasso")
 n = 50
 p = 100
