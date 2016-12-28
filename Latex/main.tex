@@ -1,0 +1,200 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+%\usepackage{layout}
+%\usepackage{geometry}
+%\usepackage{setspace}
+\usepackage{soul}
+\usepackage{ulem}
+\usepackage{amsmath}
+%\usepackage{eurosym}
+%\usepackage{bookman}
+%\usepackage{charter}
+%\usepackage{newcent}
+%\usepackage{lmodern}
+%\usepackage{mathpazo}
+%\usepackage{mathptmx}
+%\usepackage{url}
+%\usepackage{verbatim}
+%\usepackage{moreverb}
+%\usepackage{listings}
+%\usepackage{fancyhdr}
+%\usepackage{wrapfig}
+%\usepackage{color}
+%\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+%\usepackage{asmthm}
+%\usepackage{makeidx}
+
+
+
+
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert^{2}}
+
+
+\begin{document}
+
+
+%---------------------------------------------------------------------------------
+% PAGE DE GARDE
+%---------------------------------------------------------------------------------
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % lignes horizontales
+\setlength{\topmargin}{0in}
+\center % Center everything on the page
+ 
+%----------------------------------
+% Logos
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\hspace*{-0.5cm}
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.5\textwidth}
+\begin{flushright} \large
+\hspace*{1.5cm}
+\end{flushright}
+\end{minipage}\\[1cm]
+
+%-----------------------------------
+% Section d'entête
+\textsc{\Large École Nationale de la Statistique et de l'Administration Économique}\\[1.5cm] 
+\textsc{{\LARGE Rapport du Projet de Statistique}\\~\\Janvier 2017}\\[1cm]
+
+%-----------------------------------
+% Section de titre
+\HRule \\[1cm]
+{ \huge \bfseries Introduction à la régression pénalisée et à l'estimateur lasso}\\[0.4cm] % Titre
+\HRule \\[1cm]
+ 
+%------------------------------------
+% Section des auteurs
+\begin{minipage}{0.5\textwidth}
+\begin{flushleft} \large
+\emph{Auteurs:}\\
+Mehdi \textsc{Abbana Bennani} \\
+Julien \textsc{Mattei} \\
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Superviseur:} \\
+Edwin \textsc{Grappin} \\[0.5cm] 
+\end{flushright}
+\end{minipage}\\[1.2cm]
+
+%-------------------------------------
+% Section de date
+{\large \today}\\[0.5cm] % Date, change the \today to a set date if you want to be precise
+
+\vfill % Fill the rest of the page with whitespace
+\end{titlepage}
+
+%---------------------------------------------------------------------------------
+%  FIN PAGE DE GARDE
+%---------------------------------------------------------------------------------
+
+
+
+
+
+\title{	}
+
+
+\section{Régression OLS}
+
+
+\paragraph{Question 1 :}
+
+On résout le problème 
+
+$ min \norm{\xi} $
+
+On a $\norm{\xi} = \norm{ y - X \beta} $
+\newline
+
+Soit 
+$\nabla_{\beta} \norm{ y - X \beta}(\beta^{\star}) = 0$
+\newline
+
+D'ou
+$\nabla_{\beta} ( y - X \beta)^{T} ( y - X \beta) (\beta^{\star}) = 0$
+\newline
+
+D'ou
+$\beta^{\star} = (X^{T}X)^{-1}X^{T}y$
+
+Dans la suite on notera $\beta^{\star}$ l'estimateur des moindres carrés.
+
+\textbf{Question 2 :}
+\\Voir code.
+
+\section{Régression pénalisée : le lasso}
+
+\textbf{Question 3 :}
+\\X est une matrice de dimensions n * p
+\\Donc $X^{T}X$ est une matrice carrée de dimension p
+\\On a $rg(X^{T}X) = rg(X)$
+\\Donc $rg(X^{T}X) \leq min(n,p)$
+\\Or vu que le nombre de variables est plus grand que le nombre d'observations, on a $p > n$
+\\Donc $rg(X^{T}X) < p$
+\\Or $X^{T}X$ est une matrice de taille p
+\\Donc $X^{T}X$ n'est pas inversible
+\\Donc on ne peut pas utiliser la méthode précédente.
+\\La matrice $X^{T}X$ n'est plus inversible car son rang est inférieur au minimum des dimensions de X.
+
+\textbf{Question 4 :}
+\\En dimension 1, on a :
+\\$\norm{y-X\beta} = (y-x\beta)^2 = y^2 + \beta^2x^2 - 2\beta*xy $
+\\Ainsi, le problème revient à trouver $\beta$ qui minimise la quantité :
+\\$ \frac{1}{2}\beta^2x^2 -\beta*xy +  \lambda\beta + y^2 $
+\\On dérive par rapport à $\beta$:
+\\Si $\beta*x^2 + (\lambda - xy) = 0$
+\\On distingue deux cas dans la résolution: 
+\\\underline{$\beta^{\star}>0$ :}
+\\En dimension 1 : $\beta^{\star} = \frac{xy}{x^2}$
+\\Ainsi $\frac{xy - \lambda}{x^2} = \beta^{\star} - \frac{\lambda}{x^2} = \beta^{\star} - t  $
+\\Avec $t = \frac{\lambda}{x^2}$
+\\Donc : $\hat{\beta}^{lasso}= max(0,\beta^{\star} - t)$
+\\De même si \underline{$\beta^{\star}<0$ :}
+\\$\hat{\beta}^{lasso}= max(0,-\beta^{\star} - t)$
+\\En résumé : $\hat{\beta}^{lasso}= sign(\beta^{\star})*max(0,\beta^{\star} - t)$
+\\Le seuillage doux permet de regler l'intervalle sur lequel on veut estimer $\beta^{\star}$. Ainsi, on choisit $\lambda$, si notre estimateur $\beta^{\star}$ est compris dans l'intervalle $[-\lambda,\lambda]$ il est ramené à 0. On ne retient que les valeurs de $\beta^{\star}$ en dehors de cet intervalle (même principe qu'un filtre).
+\\L'estimateur $\hat{\beta}^{lasso}$ est nul pour tout les $\beta^{\star}$ tels que $\beta^{\star} - t < 0$. Donc cela induit une estimation nulle plus souvent que l'estimateur des moindres carrés (qui se produit seulement lorsque $\beta^{\star} = 0$)
+
+\textbf{Question 5 :}
+Dans la régression pénalisée, on pénalise les valeurs de $\beta$ trop grandes, en leur assignant un coût proportionnel à $\lambda$
+PAS REPONDU
+
+\textbf{Question 6 :}
+Quelles sont les avantages du lasso sur la pénalisation ` 0 ?
+Même question avec la pénalisation Ridge
+
+\textbf{Question 7 :}
+A implémenter
+
+
+\textbf{Question 8 :}
+Le $\lambda$ permet de régler la "force" de pénalisation du paramètre $\beta$.
+
+\textbf{Question 9 :}
+Dans la méthode de cross validation, on divise le dataset en trois parties: 
+Train Set, Validation Set, et Test Set.
+On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set pour entrainer le modèle sur le nouveau train set comprenant le train set précédent et le validation set.
+
+\textbf{Question 10 :}
+A implémenter
+
+Combien d’éléments de $\beta$ estimez vous non-nuls ? Evaluez l’erreur de votre modèle. Trouvez
+de bonnes mesures pour évaluer votre méthode
+
+
+
+\end{document}
