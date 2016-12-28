@@ -74,9 +74,48 @@ rmse_lasso = compute_rmse(y_est_lasso, y)
 # Question 10 : Cross Validation
 
 # Parameters
-lambda = 0.1
+lambda_array = c(0.001, 0.01, 0.1, 1, 10)
 train_size = 0.8
-cross_val_size = 0.1
+val_size = 0.1
 test_size = 0.1
+train_row_limit = train_size * nrow(ols_data_set)
+validation_row_start = train_row_limit + 1
+validation_row_end = (train_size + val_size) * nrow(ols_data_set)
+test_row_start = validation_row_start + 1
 
-# 
+# Train, validation, test split
+X_train = lasso_data_set[1:train_row_limit, 2:ncol(lasso_data_set)]
+y_train = lasso_data_set[1:train_row_limit, 1]
+X_val = lasso_data_set[validation_row_start:validation_row_end, 2:ncol(lasso_data_set)]
+y_val = lasso_data_set[validation_row_start:validation_row_end, 1]
+X_test = lasso_data_set[test_row_start:nrow(lasso_data_set), 2:ncol(lasso_data_set)]
+y_test = lasso_data_set[test_row_start:nrow(lasso_data_set), 1]
+
+rmse_min = Inf
+lambda_min = 0
+# Estimating the lasso regression parameters using the glmnet package
+for (lambda in lambda_array){
+  # The parameter alpha is the weight between Lasso and Ridge regression, we set it to one for Lasso regression
+  fit = glmnet(x=X_train, y=y_train, alpha = 1, lambda = lambda)
+  # Predicting y using the lasso estimated parameters
+  y_est_lasso = predict(fit, newx = X_val, type = "response", s=lambda)
+  # Computing the score for the lasso regression
+  rmse_lasso = compute_rmse(y_est_lasso, y_val)
+  if (rmse_lasso < rmse_min){
+    rmse_min = rmse_lasso
+    lambda_min = lambda
+  }
+}
+
+X_train = lasso_data_set[1:validation_row_end, 2:ncol(lasso_data_set)]
+y_train = lasso_data_set[1:validation_row_end, 1]
+
+# Predicting y using the lasso estimated parameters
+y_est_lasso = predict(fit, newx = X_test, type = "response", s=lambda)
+
+# Computing the score for the lasso regression
+rmse_lasso = compute_rmse(y_est_lasso, y_test)
+
+# Alternative method using the glmnet package
+# Cross validation with 100 lambda trials
+fit = glmnet(x, y, alpha = 1, nlambda = 100)

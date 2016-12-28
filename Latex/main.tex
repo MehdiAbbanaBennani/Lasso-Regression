@@ -26,10 +26,8 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{mathrsfs}
-%\usepackage{asmthm}
+\usepackage{amsthm}
 %\usepackage{makeidx}
-
-
 
 
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert^{2}}
@@ -113,83 +111,83 @@ Edwin \textsc{Grappin} \\[0.5cm]
 
 \paragraph{Question 1 :}
 
-On résout le problème 
+\begin{align}
+&\underset{\beta}{min}\norm{ y - X \beta} \tag{On minimise l'erreur quadratique}
+\\ &\nabla_{\beta} \norm{ y - X \beta}(\beta^{\star}) = 0 \tag{Le gradient est nul en $\beta^\star$}
+\notag \\ &\nabla_{\beta} ( y - X \beta)^{T} ( y - X \beta) (\beta^{\star}) = 0
+\notag \\ &\boxed{\beta^{\star} = (X^{T}X)^{-1}X^{T}y}
+\end{align}
 
-$ min \norm{\xi} $
-
-On a $\norm{\xi} = \norm{ y - X \beta} $
-\newline
-
-Soit 
-$\nabla_{\beta} \norm{ y - X \beta}(\beta^{\star}) = 0$
-\newline
-
-D'ou
-$\nabla_{\beta} ( y - X \beta)^{T} ( y - X \beta) (\beta^{\star}) = 0$
-\newline
-
-D'ou
-$\beta^{\star} = (X^{T}X)^{-1}X^{T}y$
 
 Dans la suite on notera $\beta^{\star}$ l'estimateur des moindres carrés.
+\paragraph{Question 2 :}
 
-\textbf{Question 2 :}
-\\Voir code.
+Voir code.
+
+On obtient une RMSE de 3.85, sachant que la variance de y est 90 à peu près.
 
 \section{Régression pénalisée : le lasso}
 
-\textbf{Question 3 :}
-\\X est une matrice de dimensions n * p
+\paragraph{Question 3 :}
+\begin{proof}
+On ne peut pas utiliser la régression par moindres carrés si le nombre de variables est supérieur au nombre d'observations
+\\X est une matrice de dimensions (n,p)
 \\Donc $X^{T}X$ est une matrice carrée de dimension p
 \\On a $rg(X^{T}X) = rg(X)$
 \\Donc $rg(X^{T}X) \leq min(n,p)$
-\\Or vu que le nombre de variables est plus grand que le nombre d'observations, on a $p > n$
+\\Par hypothèse, le nombre de variables est plus grand que le nombre d'observations, soit $p > n$
 \\Donc $rg(X^{T}X) < p$
 \\Or $X^{T}X$ est une matrice de taille p
 \\Donc $X^{T}X$ n'est pas inversible
 \\Donc on ne peut pas utiliser la méthode précédente.
 \\La matrice $X^{T}X$ n'est plus inversible car son rang est inférieur au minimum des dimensions de X.
+\end{proof}
 
-\textbf{Question 4 :}
-\\En dimension 1, on a :
-\\$\norm{y-X\beta} = (y-x\beta)^2 = y^2 + \beta^2x^2 - 2\beta*xy $
-\\Ainsi, le problème revient à trouver $\beta$ qui minimise la quantité :
-\\$ \frac{1}{2}\beta^2x^2 -\beta*xy +  \lambda\beta + y^2 $
-\\On dérive par rapport à $\beta$:
-\\Si $\beta*x^2 + (\lambda - xy) = 0$
-\\On distingue deux cas dans la résolution: 
-\\\underline{$\beta^{\star}>0$ :}
-\\En dimension 1 : $\beta^{\star} = \frac{xy}{x^2}$
-\\Ainsi $\frac{xy - \lambda}{x^2} = \beta^{\star} - \frac{\lambda}{x^2} = \beta^{\star} - t  $
-\\Avec $t = \frac{\lambda}{x^2}$
-\\Donc : $\hat{\beta}^{lasso}= max(0,\beta^{\star} - t)$
-\\De même si \underline{$\beta^{\star}<0$ :}
-\\$\hat{\beta}^{lasso}= max(0,-\beta^{\star} - t)$
-\\En résumé : $\hat{\beta}^{lasso}= sign(\beta^{\star})*max(0,\beta^{\star} - t)$
-\\Le seuillage doux permet de regler l'intervalle sur lequel on veut estimer $\beta^{\star}$. Ainsi, on choisit $\lambda$, si notre estimateur $\beta^{\star}$ est compris dans l'intervalle $[-\lambda,\lambda]$ il est ramené à 0. On ne retient que les valeurs de $\beta^{\star}$ en dehors de cet intervalle (même principe qu'un filtre).
+\paragraph{Question 4 :}
+
+\begin{align}
+\intertext{Sous l'hypothèse de p=1, on résoud le problème d'optimisation:}
+& \underset{\beta}{min}(y-x\beta)^2 + \lambda|\beta| \notag
+\intertext{A partir de l'expression (1), on a $\hat{\beta} = \frac{y}{x}$}
+\intertext{On injecte $\hat{\beta}$ dans le problème d'optimisation et après simplification:}
+& \underset{\beta}{min} \frac{x^{2}\beta^{2}}{2} - x^{2} \beta \hat{\beta} + \lambda|\beta| \notag
+\intertext{On remarque que si $\hat{\beta}<0$ Alors forcément $\beta^{lasso}<0$}
+\intertext{De même si $\hat{\beta}>0$ Alors forcément $\beta^{lasso}>0$}
+\intertext{On va traîter les deux cas}
+\intertext{Si $\hat{\beta}>0$, on résoud:}
+& \underset{\beta}{min} \frac{x^{2}\beta^{2}}{2} - x^{2} \beta \hat{\beta} + \lambda\beta \notag
+\intertext{On obtient $\beta^{lasso} = \hat{\beta} - \frac{\lambda}{x^{2}}$}
+\intertext{Or $\beta^{lasso} $ forcément positif, donc $\beta^{lasso} = max(0, \hat{\beta} - \frac{\lambda}{x^{2}})$}
+\intertext{Si $\hat{\beta}<0$, à l'aide d'un raisonnement similaire $\beta^{lasso} = max(0, \hat{\beta} + \frac{\lambda}{x^{2}})$}
+\intertext{On en déduit que $\beta^{lasso} = sg(\hat{\beta}) (|\hat{\beta}| - t )_{+}$ avec $t = \frac{\lambda}{x^{2}}$}
+\end{align}
+
+
+
+Le seuillage doux permet de regler l'intervalle sur lequel on veut estimer $\beta^{\star}$. Ainsi, on choisit $\lambda$, si notre estimateur $\beta^{\star}$ est compris dans l'intervalle $[-\lambda,\lambda]$ il est ramené à 0. On ne retient que les valeurs de $\beta^{\star}$ en dehors de cet intervalle (même principe qu'un filtre).
 \\L'estimateur $\hat{\beta}^{lasso}$ est nul pour tout les $\beta^{\star}$ tels que $\beta^{\star} - t < 0$. Donc cela induit une estimation nulle plus souvent que l'estimateur des moindres carrés (qui se produit seulement lorsque $\beta^{\star} = 0$)
 
-\textbf{Question 5 :}
-Dans la régression pénalisée, on pénalise les valeurs de $\beta$ trop grandes, en leur assignant un coût proportionnel à $\lambda$
-PAS REPONDU
+\paragraph{Question 5:}
+Dans la régression pénalisée, on pénalise les valeurs de $\beta$ pour limiter leur valeurs possibles, dans le cas du lasso par exemple, toutes les estimations par moindres carrées inférieures à t sont ramenées  zeros, l'intervalle d'estimation est $\left\lbrace0\right\rbrace$U${[t,\infty[}$. Dans le cas de la régression Ridge par exemple, on pénalise les coefficients trop grands.
+\\ L'estimateur Lasso est adapté à notre problème car nous allons pouvoir réduire la taille de l'espace des paramètres jusqu'à ce que le nombre de coefficients de beta non nuls soit égal à n le nombre d'observations, en changeant la valeur de $\lambda$. Plus celui-ci est grand, plus le nombre de paramètres nuls sera grand.
 
-\textbf{Question 6 :}
+
+
+\paragraph{Question 6 :}
 Quelles sont les avantages du lasso sur la pénalisation ` 0 ?
 Même question avec la pénalisation Ridge
 
-\textbf{Question 7 :}
+\paragraph{Question 7 :}
 A implémenter
 
-
-\textbf{Question 8 :}
+\paragraph{Question 8 :}
 Le $\lambda$ permet de régler la "force" de pénalisation du paramètre $\beta$.
 
-\textbf{Question 9 :}
+\paragraph{Question 9 :}
 Dans la méthode de cross validation, on divise le dataset en trois parties: 
 Train Set, Validation Set, et Test Set.
 On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set pour entrainer le modèle sur le nouveau train set comprenant le train set précédent et le validation set.
-
-\textbf{Question 10 :}
+\paragraph{Question 10 :}
 A implémenter
 
 Combien d’éléments de $\beta$ estimez vous non-nuls ? Evaluez l’erreur de votre modèle. Trouvez
