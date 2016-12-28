@@ -168,7 +168,7 @@ Le seuillage doux permet de regler l'intervalle sur lequel on veut estimer $\bet
 \\L'estimateur $\hat{\beta}^{lasso}$ est nul pour tout les $\beta^{\star}$ tels que $\beta^{\star} - t < 0$. Donc cela induit une estimation nulle plus souvent que l'estimateur des moindres carrés (qui se produit seulement lorsque $\beta^{\star} = 0$)
 
 \paragraph{Question 5:}
-Dans la régression pénalisée, on pénalise les valeurs de $\beta$ pour limiter leur valeurs possibles, dans le cas du lasso par exemple, toutes les estimations par moindres carrées inférieures à t sont ramenées  zeros, l'intervalle d'estimation est $\left\lbrace0\right\rbrace$U${[t,\infty[}$. Dans le cas de la régression Ridge par exemple, on pénalise les coefficients trop grands.
+Dans la régression pénalisée, on pénalise les valeurs de $\beta$ pour limiter leur valeurs possibles, dans le cas du lasso par exemple, toutes les estimations par moindres carrées inférieures à t sont ramenées  zeros, l'intervalle d'estimation est $\left\lbrace0\right\rbrace$U$[t,\infty[$. Dans le cas de la régression Ridge par exemple, on pénalise les coefficients trop grands.
 \\ L'estimateur Lasso est adapté à notre problème car nous allons pouvoir réduire la taille de l'espace des paramètres jusqu'à ce que le nombre de coefficients de beta non nuls soit égal à n le nombre d'observations, en changeant la valeur de $\lambda$. Plus celui-ci est grand, plus le nombre de paramètres nuls sera grand.
 
 
@@ -177,16 +177,18 @@ Dans la régression pénalisée, on pénalise les valeurs de $\beta$ pour limite
 Quelles sont les avantages du lasso sur la pénalisation ` 0 ?
 Même question avec la pénalisation Ridge
 
+La pénalisation Ridge a tendance à pénaliser les valeurs dans $\beta$ trop grandes, mais n'a pas tendance à maximiser le nombre de paramètres nuls, contrairement à la pénalisation l0.
+
 \paragraph{Question 7 :}
 A implémenter
 
 \paragraph{Question 8 :}
-Le $\lambda$ permet de régler la "force" de pénalisation du paramètre $\beta$.
+Le parametre $lambda$ permet de régler le nombre de coefficients nuls dans $\beta^{lasso}$.
 
 \paragraph{Question 9 :}
 Dans la méthode de cross validation, on divise le dataset en trois parties: 
 Train Set, Validation Set, et Test Set.
-On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set pour entrainer le modèle sur le nouveau train set comprenant le train set précédent et le validation set.
+On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set. Esuite on estime le modèle avec cette valeur de $\lambda$ sur le train set comprenant le train set précédent et le validation set précédent.
 \paragraph{Question 10 :}
 A implémenter
 
