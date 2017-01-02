@@ -1,7 +1,7 @@
 # Pour les noms des variables, nous conservons les memes notations que l'enonce
 
 # Global parameters
-train_set_size = 0.99
+train_set_size = 0.90
 
 # Computes the Root Mean Square Error of the predicted y
 compute_rmse <- function(y, y_est){
