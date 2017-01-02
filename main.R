@@ -59,7 +59,7 @@ install.packages("glmnet")
 library("glmnet")
 
 # Parameters
-lambda = c(2)
+lambda = c(1)
 
 # Importing the dataset
 lasso_data_set = data.matrix(read.table("mydata.txt", sep=','))
@@ -125,15 +125,15 @@ for (lambda in lambda_array){
   }
 }
 
+# Merging the train and validation into a full train set
 X_train = lasso_data_set[1:validation_row_end, 2:ncol(lasso_data_set)]
 y_train = lasso_data_set[1:validation_row_end, 1]
 
 # Predicting y using the lasso estimated parameters
-y_est_lasso = predict(fit, newx = X_test, type = "response", s=lambda)
+y_est_lasso_cval = predict(fit, newx = X_test, type = "response", s=lambda)
 
-# Computing the score for the lasso regression
-rmse_lasso = compute_rmse(y_est_lasso, y_test)
-
+# Computing the score for the lasso regression against the test set
+rmse_lasso_cval = compute_rmse(y_est_lasso_cval, y_test)
 
 
 # Alternative method for Cross Validation using the glmnet package
@@ -141,7 +141,7 @@ rmse_lasso = compute_rmse(y_est_lasso, y_test)
 fit_auto = glmnet(X_train, y_train, alpha = 1, nlambda = 100)
 
 # Predicting y using the lasso estimated parameters
-y_est_lasso_auto = predict(fit, newx = X_test, type = "response", s=lambda)
+y_est_lasso_auto = predict(fit_auto, newx = X_test, type = "response")
 
 # Computing the score for the lasso regression
 rmse_lasso_auto = compute_rmse(y_est_lasso_auto, y_test)
@@ -149,5 +149,5 @@ rmse_lasso_auto = compute_rmse(y_est_lasso_auto, y_test)
 # The obtained value is slightly inferior to the value we obtained manually
 
 # Plotting the number of zeros against lambdas
-nb_zeros_array = ncol(lasso_data_set) - fit_auto$df
-lambdas_array = fit_auto$lambda
+nb_zeros_array = sort(ncol(lasso_data_set) - fit_auto$df)
+lambdas_array = sort(fit_auto$lambda)
