@@ -1,12 +1,8 @@
 # Pour les noms des variables, nous conservons les memes notations que l'enonce
 
-# Required packages installation
-install.packages("glmnet")
-
 # Global parameters
 train_set_size = 0.90
 
-# Global functions
 # Computes the Root Mean Square Error of the predicted y
 compute_rmse <- function(y, y_est){
   return(sum((y-y_est)^2)/length(y))
@@ -55,17 +51,15 @@ y_est_test = predict_y(X=X_test, beta=beta_hat)
 rmse_lse_test = compute_rmse(y=y_test, y_est=y_est_test)
 
 nb_zeros_ols = count_zeros(beta_hat)
-# Explained Variace
-R_squared_train = var(y_est_train) / var(y_train)
-
 
 # Question 7 : Estimateur Lasso
 
-# Packages
+# Package
+install.packages("glmnet")
 library("glmnet")
 
 # Parameters
-lambda = c(0.1)
+lambda = c(1)
 
 # Importing the dataset
 lasso_data_set = data.matrix(read.table("mydata.txt", sep=','))
@@ -85,21 +79,17 @@ y_test = lasso_data_set[test_row_start:nrow(lasso_data_set), 1]
 fit = glmnet(x=X_train, y=y_train, alpha = 1, lambda = lambda)
 
 # Predicting y using the lasso estimated parameters
-y_est_lasso_test = predict(fit, newx = X_test, type = "response", s=lambda)
-y_est_lasso_train = predict(fit, newx = X_train, type = "response", s=lambda)
+y_est_lasso = predict(fit, newx = X_test, type = "response", s=lambda)
 
 # Computing the score for the lasso regression
-rmse_lasso_test = compute_rmse(y_est_lasso_test, y_test)
-rmse_lasso_train = compute_rmse(y_est_lasso_train, y_train)
+rmse_lasso = compute_rmse(y_est_lasso, y_test)
 
 # Conting the number of zeros
-nb_non_zeros_lasso = fit$df
-nb_zeros_lasso = ncol(lasso_data_set) - nb_non_zeros_ols
-R_squared_lasso = var(y_est_train) / var(y_train)
+nb_non_zeros_ols = fit$df
+nb_zeros_ols = ncol(lasso_data_set) - nb_non_zeros_ols
 
 # Question 10 : Cross Validation
 
-# Manually coded Cross-Validation
 # Parameters
 lambda_array = c(0.001, 0.01, 0.1, 1, 10)
 train_size = 0.8
@@ -155,12 +145,9 @@ y_est_lasso_auto = predict(fit_auto, newx = X_test, type = "response")
 
 # Computing the score for the lasso regression
 rmse_lasso_auto = compute_rmse(y_est_lasso_auto, y_test)
-R_squared_lasso_auto = var(y_est_train) / var(y_train)
-
 
 # The obtained value is slightly inferior to the value we obtained manually
 
 # Plotting the number of zeros against lambdas
 nb_zeros_array = sort(ncol(lasso_data_set) - fit_auto$df)
 lambdas_array = sort(fit_auto$lambda)
-
