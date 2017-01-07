@@ -178,7 +178,7 @@
 	
 	Nous avons utilisé le package Glmnet pour calculer l'estimation de $\beta^{lasso}$. La démarche est la même que celle de la question 2. La fonction glmnet cherche par défaut un $\lambda$ optimal, nous avons imposé que la régression lasso soit effectuée pour $\lambda=0.1$, le choix est arbitraire.
 	
-	On obtient un $R^{2}$ de 0.84 sur le train set, qui laisse penser que le modèle a une bonne capacité prédictive, une RMSE sur le Test set de 3.77, et une RMSE de 2.61 sur le train set. L'écart type sur le Train set est de l'ordre de 10. Donc la qualité de la prédiction est raisonnable en comparaison avec l'écart type de l'échantilllon. 
+	On obtient un $R^{2}$ de 0.84 sur le train set, qui laisse penser que le modèle a une bonne capacité prédictive, une RMSE sur le Test set de 3.77, et une RMSE de 2.61 sur le train set. L'écart type sur le Train set est de l'ordre de 10. Donc la qualité de la prédiction est raisonnable en comparaison avec l'écart type de l'échantillon 
 	
 	
 	\section{Le choix du paramètre $\lambda$}
@@ -186,31 +186,39 @@
 	\paragraph{Question 8 :}
 	~\par
 	
-	Le paramètre $\lambda$ permet de réduire la taille de l'espace des variables en régleant le nombre de coefficients nuls dans $\beta^{lasso}$. t étant croissant en fonctino de $\lambda$, plus on augmente $\lambda$ plus le filtre est large, plus le nombre de zéros augmente et plus la taille de l'espace des variables est petit.
+	Le paramètre $\lambda$ permet de réduire la taille de l'espace des variables en réglant le nombre de coefficients nuls dans $\beta^{lasso}$. t étant croissant en fonction de $\lambda$, plus on augmente $\lambda$ plus le filtre est large, plus le nombre de zéros augmente et plus la taille de l'espace des variables est petit.
 	
 	\paragraph{Question 9 :}
 	~\par
 	
 	Dans la méthode de cross validation, nous divisons le dataset en trois parties: 
 	Train Set, Validation Set, et Test Set.
-	On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set. Esuite on estime le modèle avec cette valeur de $\lambda$ sur le train set comprenant le train set et le validation set précédents.
+	On entraine le modèle sur le train set puis on estime la qualité de la prédiction sur le validation set pour plusieurs valeurs de $\lambda$, on choisit le lambda le plus performant sur le validation set. Ensuite on estime le modèle avec cette valeur de $\lambda$ sur le train set comprenant le train set et le validation set précédents.
 	
 	\paragraph{Question 10 :}
 	~\par
 	
-	Pour évaluer l'erreur du modèle, nous avons divisé la base de données en Train Set et Test Set, les données du Train Set sont utilisées pour estimer les paramètres, les données du test set sont ensuite utilisés pour évaluer l'erreur d'estimation. La mesure que nous utiliserons est la Root Mean Square Error, définie précédemment. Nous utiliserons aussi le $R^{2}$ défini plus haut.
+	Pour évaluer l'erreur du modèle, nous avons divisé la base de données en Train Set et Test Set, les données du Train Set sont utilisées pour estimer les paramètres, les données du test set sont ensuite utilisés pour évaluer l'erreur d'estimation. Les mesures que nous utiliserons sontla Root Mean Square Error, et le $R^{2}$ définies précédemment.
 	
 	Pour cette question, nous avons implémenté deux méthodes de cross- validation, l'une automatique à l'aide du package glmnet, et l'autre manuelle en définissant notre propre jeu de paramètres et en divisant la base manuellement.
 	
-	L'implémentation qui se base sur le package est très simple, il suffit de choisir le nombre de $\lambda$ que l'on veut tester et ensuite effectuer l'estimation.
+	L'implémentation qui se base sur le package est très simple, il suffit d'utiliser les fonctions cv.glmnet pour l'aprentissage et predict.cv.glmnet pour la prédiction.
+
+	Avec cette méthode, nous avons obtenu un $\lambda$ optimal de 0.24, un $R^{2}$ de 0.76 et une RMSE de 3.07. Nous avons également tracé la courbe (figure \ref{cv_plot}) de la Mean Squared Error en fonction de $log(\lambda)$. On peut voir que sur la MSE devient très grande à partir d'un certain rang de $\lambda$, cela est du au fait que tout les coefficients de $\beta^{lasso}$ deviennent nuls, et  le modèle n'est plus valable.
+	
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{cv_plot} Mean squared error en fonction de $log(\lambda)$ pour la Cross validation avec 100 veleurs de $\lambda$}
+		\includegraphics[scale=0.7]{CV_plot.png}
+	\end{figure}
 	
 	Pour l'implémentation manuelle, nous avons d'abord choisi un jeu de paramètres $\lambda$ sur une échelle logarithmique. Ensuite nous avons divisé le dataset en Train, Cross-Validation et Test set. Enfin nous avons itéré les estimations de l'erreur sur le Cross-Validation set ensuite nous avons conservé le paramètre avec l'erreur la plus basse.
 	
-	La méthode automatique s'est révélée plus performante, ce qui est normal car nous n'avons testé que quelques paramètres sur une échelle logarithmique, alors que la méthode automatique teste un jeu de 100 paramètres.	
+	Avec cette méthode, nous avons obtenu un lambda optimal de 0.1, un $R^{2}$ de 0.91 et une RMSE de 2.95.
+	
+	La méthode automatique donne un ordre de grandeur similaire que le $\lambda$ que nous avons estimé avec le package, il est plus précis car celle-ci parcourt une grille de paramètres plus grande. Toutefois, elle s'est révélée moins performante que la méthode manuelle, ce qui est surprenant. 
 
-	Le $R^{2}$ obtenu est identique à celui obtenu sans cross validation, soit 0.83, cela veut dire que notre modèle explique 83\% de la variance de y.
-
-	Comme le montre la figure \ref{nb_zeros_cval}, le nombre de zéros augmente avec lambda, on retrouve l'explication que l'on avait fourni dans la question 6. Lorsque le paramètre $\lambda$ est trop grand, tous les coefficients de $\beta^{lasso}$ sont nuls.
+	Comme le montre la figure \ref{nb_zeros_cval}, le nombre de zéros augmente avec $\lambda$, on retrouve l'explication que l'on avait fourni dans la question 6. Lorsque le paramètre $\lambda$ est très grand, tous les coefficients de $\beta^{lasso}$ sont nuls.
 	
 	\begin{figure}[ht]
 		\centering
@@ -221,7 +229,7 @@
 	
 	
 	
-	
+	\clearpage
 	\newpage
 	\section{Appendix}
 

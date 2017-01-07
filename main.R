@@ -94,7 +94,7 @@ rmse_lasso_train = compute_rmse(y_est_lasso_train, y_train)
 
 # Conting the number of zeros
 nb_non_zeros_lasso = fit$df
-nb_zeros_lasso = ncol(lasso_data_set) - nb_non_zeros_ols
+nb_zeros_lasso = ncol(lasso_data_set) - nb_non_zeros_lasso
 R_squared_lasso = var(y_est_train) / var(y_train)
 
 # Question 10 : Cross Validation
@@ -139,28 +139,50 @@ for (lambda in lambda_array){
 X_train = lasso_data_set[1:validation_row_end, 2:ncol(lasso_data_set)]
 y_train = lasso_data_set[1:validation_row_end, 1]
 
+# Estimating the lasso regression parameters using the glmnet package for the optimal lambda
+fit_optimal = glmnet(x=X_train, y=y_train, alpha = 1, lambda = lambda_min)
+
 # Predicting y using the lasso estimated parameters
-y_est_lasso_cval = predict(fit, newx = X_test, type = "response", s=lambda)
+y_est_lasso_cval = predict(fit_optimal, newx = X_test, type = "response", s=lambda)
+y_est_lasso_cval_train = predict(fit_optimal, newx = X_train, type = "response", s=lambda)
 
 # Computing the score for the lasso regression against the test set
 rmse_lasso_cval = compute_rmse(y_est_lasso_cval, y_test)
+R_squared_lasso_cval_train = var(y_est_lasso_cval_train) / var(y_train)
 
 
 # Alternative method for Cross Validation using the glmnet package
+# Importing the dataset
+lasso_data_set = data.matrix(read.table("mydata.txt", sep=','))
+
+# Computing the train-test slicing coordinates
+train_row_limit = train_set_size * nrow(lasso_data_set)
+test_row_start = train_row_limit + 1
+
+# Splitting the data set into a train set and test set
+X_train = lasso_data_set[1:train_row_limit, 2:ncol(lasso_data_set)]
+y_train = lasso_data_set[1:train_row_limit, 1]
+X_test = lasso_data_set[test_row_start:nrow(lasso_data_set), 2:ncol(lasso_data_set)]
+y_test = lasso_data_set[test_row_start:nrow(lasso_data_set), 1]
+
 # Cross validation with 100 lambda trials
-fit_auto = glmnet(X_train, y_train, alpha = 1, nlambda = 100)
+fit_auto = cv.glmnet(X_train, y_train, alpha = 1, nlambda = 100)
 
 # Predicting y using the lasso estimated parameters
-y_est_lasso_auto = predict(fit_auto, newx = X_test, type = "response")
+y_est_lasso_auto = predict.cv.glmnet(fit_auto, newx = X_test, type = "response")
+y_est_lasso_auto_train = predict.cv.glmnet(fit_auto, newx = X_train, type = "response")
+
+# Plotting the CV curve
+plot.cv.glmnet(fit_auto)
 
 # Computing the score for the lasso regression
 rmse_lasso_auto = compute_rmse(y_est_lasso_auto, y_test)
-R_squared_lasso_auto = var(y_est_train) / var(y_train)
+R_squared_lasso_auto_train = var(y_est_lasso_auto_train) / var(y_train)
+lambda_min_cv_auto = fit_auto$lambda.min
 
-
-# The obtained value is slightly inferior to the value we obtained manually
 
 # Plotting the number of zeros against lambdas
+fit_auto = glmnet(X_train, y_train, alpha = 1, nlambda = 100)
 nb_zeros_array = sort(ncol(lasso_data_set) - fit_auto$df)
 lambdas_array = sort(fit_auto$lambda)
-
+plot(lambdas_array, nb_zeros_array)
